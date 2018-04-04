@@ -4,13 +4,13 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\migrations;
+namespace vigetlabs\audit\migrations;
 
-use superbig\audit\Audit;
+use vigetlabs\audit\Audit;
 
 use Craft;
 use craft\config\DbConfig;

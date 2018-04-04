@@ -5,7 +5,7 @@
  *
  * @author    Superbig
  * @copyright Copyright (c) 2017 Superbig
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @package   Audit
  * @since     1.0.0
  */

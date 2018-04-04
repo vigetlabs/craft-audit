@@ -4,15 +4,15 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\records;
+namespace vigetlabs\audit\records;
 
 use craft\records\User;
 use craft\records\Element;
-use superbig\audit\Audit;
+use vigetlabs\audit\Audit;
 
 use Craft;
 use craft\db\ActiveRecord;

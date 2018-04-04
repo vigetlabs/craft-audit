@@ -4,11 +4,11 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\services;
+namespace vigetlabs\audit\services;
 
 use craft\base\Element;
 use craft\base\ElementInterface;
@@ -16,12 +16,12 @@ use craft\helpers\FileHelper;
 use craft\models\EntryDraft;
 use GeoIp2\Database\Reader;
 use GuzzleHttp\Client;
-use superbig\audit\Audit;
+use vigetlabs\audit\Audit;
 
 use Craft;
 use craft\base\Component;
-use superbig\audit\models\AuditModel;
-use superbig\audit\records\AuditRecord;
+use vigetlabs\audit\models\AuditModel;
+use vigetlabs\audit\records\AuditRecord;
 use yii\base\Exception;
 
 /**

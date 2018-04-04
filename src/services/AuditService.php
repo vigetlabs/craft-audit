@@ -4,11 +4,11 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\services;
+namespace vigetlabs\audit\services;
 
 use craft\base\Element;
 use craft\base\ElementInterface;
@@ -18,14 +18,14 @@ use craft\events\RouteEvent;
 use craft\helpers\Template;
 use craft\queue\jobs\ResaveElements;
 use DateTime;
-use superbig\audit\Audit;
+use vigetlabs\audit\Audit;
 
 use Craft;
 use craft\base\Component;
-use superbig\audit\events\SnapshotEvent;
-use superbig\audit\helpers\Route;
-use superbig\audit\models\AuditModel;
-use superbig\audit\records\AuditRecord;
+use vigetlabs\audit\events\SnapshotEvent;
+use vigetlabs\audit\helpers\Route;
+use vigetlabs\audit\models\AuditModel;
+use vigetlabs\audit\records\AuditRecord;
 use yii\base\Exception;
 
 /**

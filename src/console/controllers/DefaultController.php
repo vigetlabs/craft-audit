@@ -4,14 +4,14 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\console\controllers;
+namespace vigetlabs\audit\console\controllers;
 
 use craft\helpers\Console as ConsoleHelper;
-use superbig\audit\Audit;
+use vigetlabs\audit\Audit;
 
 use yii\console\Controller;
 use yii\console\ExitCode;

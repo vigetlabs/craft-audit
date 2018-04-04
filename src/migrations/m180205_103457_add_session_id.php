@@ -1,6 +1,6 @@
 <?php
 
-namespace superbig\audit\migrations;
+namespace vigetlabs\audit\migrations;
 
 use Craft;
 use craft\config\DbConfig;

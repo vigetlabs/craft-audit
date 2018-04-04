@@ -4,20 +4,20 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\controllers;
+namespace vigetlabs\audit\controllers;
 
 use craft\helpers\Template;
 use craft\web\UrlManager;
-use superbig\audit\Audit;
+use vigetlabs\audit\Audit;
 
 use Craft;
 use craft\web\Controller;
-use superbig\audit\models\AuditModel;
-use superbig\audit\records\AuditRecord;
+use vigetlabs\audit\models\AuditModel;
+use vigetlabs\audit\records\AuditRecord;
 use yii\data\Pagination;
 use yii\widgets\LinkPager;
 

@@ -4,13 +4,13 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\events;
+namespace vigetlabs\audit\events;
 
-use superbig\audit\models\AuditModel;
+use vigetlabs\audit\models\AuditModel;
 use yii\base\Event;
 
 /**

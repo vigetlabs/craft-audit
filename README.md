@@ -26,7 +26,7 @@ To install the plugin, follow these instructions.
 
 2. Then tell Composer to load the plugin:
 
-        composer require superbig/craft-audit
+        composer require vigetlabs/craft-audit
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Audit.
 
@@ -46,4 +46,4 @@ To install the plugin, follow these instructions.
 
 - [Auditing icon by Ralf Schmitzer](https://thenounproject.com/term/auditing/960985)
 
-Brought to you by [Superbig](https://superbig.co)
+Brought to you by [Superbig](https://vigetlabs.co)

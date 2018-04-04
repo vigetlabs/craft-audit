@@ -1,5 +1,5 @@
 {
-    "name": "superbig/craft-audit",
+    "name": "vigetlabs/craft-audit",
     "description": "Log adding/updating/deleting of elements",
     "type": "craft-plugin",
     "version": "2.0.0",
@@ -18,7 +18,7 @@
     "authors": [
         {
             "name": "Superbig",
-            "homepage": "https://superbig.co"
+            "homepage": "https://vigetlabs.co"
         }
     ],
     "require": {
@@ -35,7 +35,7 @@
     ],
     "autoload": {
         "psr-4": {
-          "superbig\\audit\\": "src/"
+          "vigetlabs\\audit\\": "src/"
         }
     },
     "extra": {
@@ -45,9 +45,9 @@
         "hasCpSection": true,
         "changelogUrl": "https://raw.githubusercontent.com/sjelfull/craft-audit/master/CHANGELOG.md",
         "components": {
-            "auditService": "superbig\\audit\\services\\AuditService",
-            "geo": "superbig\\audit\\services\\Audit_GeoService"
+            "auditService": "vigetlabs\\audit\\services\\AuditService",
+            "geo": "vigetlabs\\audit\\services\\Audit_GeoService"
         },
-        "class": "superbig\\audit\\Audit"
+        "class": "vigetlabs\\audit\\Audit"
     }
 }

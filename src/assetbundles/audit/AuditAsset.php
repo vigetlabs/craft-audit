@@ -4,11 +4,11 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit\assetbundles\Audit;
+namespace vigetlabs\audit\assetbundles\Audit;
 
 use Craft;
 use craft\web\AssetBundle;
@@ -29,7 +29,7 @@ class AuditAsset extends AssetBundle
      */
     public function init()
     {
-        $this->sourcePath = "@superbig/audit/assetbundles/audit/dist";
+        $this->sourcePath = "@vigetlabs/audit/assetbundles/audit/dist";
 
         $this->depends = [
             CpAsset::class,

@@ -4,11 +4,11 @@
  *
  * Log adding/updating/deleting of elements
  *
- * @link      https://superbig.co
+ * @link      https://vigetlabs.co
  * @copyright Copyright (c) 2017 Superbig
  */
 
-namespace superbig\audit;
+namespace vigetlabs\audit;
 
 use craft\events\ElementEvent;
 
@@ -18,10 +18,10 @@ use craft\queue\jobs\ResaveElements;
 use craft\queue\Queue;
 use craft\services\Routes;
 use craft\web\twig\variables\CraftVariable;
-use superbig\audit\models\AuditModel;
-use superbig\audit\services\Audit_GeoService;
-use superbig\audit\services\AuditService;
-use superbig\audit\models\Settings;
+use vigetlabs\audit\models\AuditModel;
+use vigetlabs\audit\services\Audit_GeoService;
+use vigetlabs\audit\services\AuditService;
+use vigetlabs\audit\models\Settings;
 
 use Craft;
 use craft\console\Application as ConsoleApplication;
@@ -33,7 +33,7 @@ use craft\services\Elements;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterUrlRulesEvent;
 
-use superbig\audit\variables\AuditVariable;
+use vigetlabs\audit\variables\AuditVariable;
 use yii\base\Event;
 use yii\queue\ExecEvent;
 use yii\web\User;
@@ -92,7 +92,7 @@ class Audit extends Plugin
         self::$plugin = $this;
 
         if (Craft::$app instanceof ConsoleApplication) {
-            $this->controllerNamespace = 'superbig\audit\console\controllers';
+            $this->controllerNamespace = 'vigetlabs\audit\console\controllers';
         }
 
         /**
