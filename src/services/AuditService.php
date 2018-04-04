@@ -245,10 +245,11 @@ class AuditService extends Component
         $model->siteId = $app->getSites()->currentSite->id;
 
         if (!$request->isConsoleRequest) {
-            $session          = $app->getSession();
-            $model->sessionId = $session->getId();
-            $model->ip        = $request->getUserIP();
-            $model->userAgent = $request->getUserAgent();
+            $session             = $app->getSession();
+            $model->sessionId    = $session->getId();
+            $model->ip           = $request->getUserIP();
+            $model->userAgent    = $request->getUserAgent();
+            $model->requestToken = $request->getCsrfToken();
 
             if ($identity = $app->getUser()->getIdentity()) {
                 $model->userId = $identity->id;
@@ -278,17 +279,18 @@ class AuditService extends Component
                 $record = new AuditRecord();
             }
 
-            $record->event       = $model->event;
-            $record->title       = $model->title;
-            $record->parentId    = $model->parentId;
-            $record->userId      = $model->userId;
-            $record->elementId   = $model->elementId;
-            $record->elementType = $model->elementType;
-            $record->ip          = $model->ip;
-            $record->userAgent   = $model->userAgent;
-            $record->siteId      = $model->siteId;
-            $record->snapshot    = serialize($model->snapshot);
-            $record->sessionId   = $model->sessionId;
+            $record->event        = $model->event;
+            $record->title        = $model->title;
+            $record->parentId     = $model->parentId;
+            $record->userId       = $model->userId;
+            $record->elementId    = $model->elementId;
+            $record->elementType  = $model->elementType;
+            $record->ip           = $model->ip;
+            $record->userAgent    = $model->userAgent;
+            $record->siteId       = $model->siteId;
+            $record->snapshot     = serialize($model->snapshot);
+            $record->sessionId    = $model->sessionId;
+            $record->requestToken = $model->requestToken;
 
             if (!$record->save()) {
                 Craft::error(
@@ -349,17 +351,10 @@ class AuditService extends Component
     }
 
     private function recentlyAudited($element) {
-        $existing = AuditRecord::findAll(['elementId' => $element->id]);
-        $now      = time();
+        $requestToken = Craft::$app->getRequest()->getCsrfToken();
 
-        foreach ($existing as $record) {
-            $created = strtotime($record->dateCreated);
-            $diff = $now - $created;
-            if ($now - $created < 10) {
-                return true;
-            }
-        }
+        $existing = AuditRecord::findOne(['elementId' => $element->id, 'requestToken' => $requestToken]);
 
-        return false;
+        return !!$existing;
     }
 }

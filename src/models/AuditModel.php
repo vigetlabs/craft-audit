@@ -143,6 +143,11 @@ class AuditModel extends Model
      */
     public $sessionId = null;
 
+    /**
+     * @var string
+     */
+    public $requestToken = null;
+
     protected $_user     = null;
     protected $_element  = null;
     protected $_children = null;
@@ -154,20 +159,21 @@ class AuditModel extends Model
      */
     public static function createFromRecord(AuditRecord $record)
     {
-        $model              = new self();
-        $model->id          = $record->id;
-        $model->event       = $record->event;
-        $model->title       = $record->title;
-        $model->userId      = $record->userId;
-        $model->elementId   = $record->elementId;
-        $model->parentId    = $record->parentId;
-        $model->elementType = $record->elementType;
-        $model->ip          = $record->ip;
-        $model->userAgent   = $record->userAgent;
-        $model->siteId      = $record->siteId;
-        $model->dateCreated = $record->dateCreated;
-        $model->snapshot    = unserialize($record->snapshot);
-        $model->sessionId   = $record->sessionId;
+        $model               = new self();
+        $model->id           = $record->id;
+        $model->event        = $record->event;
+        $model->title        = $record->title;
+        $model->userId       = $record->userId;
+        $model->elementId    = $record->elementId;
+        $model->parentId     = $record->parentId;
+        $model->elementType  = $record->elementType;
+        $model->ip           = $record->ip;
+        $model->userAgent    = $record->userAgent;
+        $model->siteId       = $record->siteId;
+        $model->dateCreated  = $record->dateCreated;
+        $model->snapshot     = unserialize($record->snapshot);
+        $model->sessionId    = $record->sessionId;
+        $model->requestToken = $record->requestToken;
 
         return $model;
     }
