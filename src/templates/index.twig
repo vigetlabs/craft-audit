@@ -33,6 +33,14 @@
 {% endset %}
 
 {% set content %}
+    <form>
+        <div class="texticon search icon clearable">
+            <input name="search" value="{{craft.request.getParam('search')}}" class="text" autocomplete="off" placeholder="Search">
+            <input type="submit" class="btn submit add icon">
+        </div>
+    </form>
+    <br>
+
     {% if logs %}
         <table class="data fullwidth">
             <thead>

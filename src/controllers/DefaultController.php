@@ -56,9 +56,14 @@ class DefaultController extends Controller
                                    ->orderBy('dateCreated desc')
                                    ->with('user')
                                    ->where(['parentId' => null]);
-        $countQuery   = clone $query;
-        $totalItems   = $countQuery->count();
-        $paginator    = new Paginator($totalItems, $itemsPerPage, $currentPage, $urlPattern);
+
+        if ($titleSearch = Craft::$app->getRequest()->getParam('search')) {
+            $query = $query->andWhere('title LIKE :val', [':val' => "%{$titleSearch}%"]);
+        }
+
+        $countQuery = clone $query;
+        $totalItems = $countQuery->count();
+        $paginator  = new Paginator($totalItems, $itemsPerPage, $currentPage, $urlPattern);
 
         $records = $query
             ->offset(($currentPage - 1) * $itemsPerPage)
