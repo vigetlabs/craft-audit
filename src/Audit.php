@@ -194,24 +194,6 @@ class Audit extends Plugin
 
     protected function initLogEvents()
     {
-        // Users
-        Event::on(
-            User::class,
-            User::EVENT_AFTER_LOGIN,
-            function(UserEvent $event) {
-                $this->auditService->onLogin();
-            }
-        );
-
-
-        Event::on(
-            User::class,
-            User::EVENT_BEFORE_LOGOUT,
-            function(UserEvent $event) {
-                $this->auditService->onBeforeLogout();
-            }
-        );
-
         // Elements
         Event::on(
             Elements::class,
@@ -228,87 +210,5 @@ class Audit extends Plugin
                 $this->auditService->onDeleteElement($event->element);
             }
         );
-
-        // Routes
-        Event::on(
-            Routes::class,
-            Routes::EVENT_AFTER_SAVE_ROUTE,
-            function(RouteEvent $event) {
-                $this->auditService->onSaveRoute($event);
-            }
-        );
-
-        Event::on(
-            Routes::class,
-            Routes::EVENT_BEFORE_DELETE_ROUTE,
-            function(RouteEvent $event) {
-                $this->auditService->onDeleteRoute($event);
-            }
-        );
-
-        // Plugins
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function(PluginEvent $event) {
-                $this->auditService->onPluginEvent(AuditModel::EVENT_PLUGIN_INSTALLED, $event->plugin);
-            }
-        );
-
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_UNINSTALL_PLUGIN,
-            function(PluginEvent $event) {
-                $this->auditService->onPluginEvent(AuditModel::EVENT_PLUGIN_UNINSTALLED, $event->plugin);
-            }
-        );
-
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_DISABLE_PLUGIN,
-            function(PluginEvent $event) {
-                $this->auditService->onPluginEvent(AuditModel::EVENT_PLUGIN_DISABLED, $event->plugin);
-            }
-        );
-
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_ENABLE_PLUGIN,
-            function(PluginEvent $event) {
-                $this->auditService->onPluginEvent(AuditModel::EVENT_PLUGIN_ENABLED, $event->plugin);
-            }
-        );
-
-
-        Event::on(
-            Queue::class,
-            Queue::EVENT_BEFORE_EXEC,
-            function(ExecEvent $event) {
-                if ($event->job instanceof ResaveElements) {
-                    $this->auditService->onBeforeResave($event->job);
-                }
-            }
-        );
-
-        Event::on(
-            Queue::class,
-            Queue::EVENT_AFTER_EXEC,
-            function(ExecEvent $event) {
-                if ($event->job instanceof ResaveElements) {
-                    $this->auditService->onResaveEnd($event->job);
-                }
-            }
-        );
-
-        Event::on(
-            Queue::class,
-            Queue::EVENT_AFTER_ERROR,
-            function(ExecEvent $event) {
-                if ($event->job instanceof ResaveElements) {
-                    $this->auditService->onResaveEnd($event->job);
-                }
-            }
-        );
-
     }
 }

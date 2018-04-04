@@ -1,0 +1,155 @@
+{%- set productGroup = product.laboratoryProductGroup[0] ?? product.automationProductGroup[0] ?? null -%}
+
+{%- set productCategories = craft.categories({
+	group: 'productCategories',
+	relatedTo: {
+		sourceElement: productGroup,
+		field: 'flatProductCategory'
+	}
+}) -%}
+
+{%- switch product.type.handle -%}
+	{%- case 'syringeMultipacks' -%}
+		{%- set facetField = 'syringesFacets' -%}
+	{%- case 'pipetteMultipacks' -%}
+		{%- set facetField = 'pipettesFacets' -%}
+	{%- default -%}
+		{%- set facetField = product.type.handle ~ 'Facets' -%}
+{%- endswitch -%}
+
+{%- set filterFacets = {} -%}
+
+{%- if productGroup -%}
+	{%- if productGroup[facetField] is defined -%}
+		{%- set groupFacets = productGroup[facetField] -%}
+
+		{# Inherit product group facets #}
+		{%- for facet in groupFacets.level(2) -%}
+			{%- set filterFacets = filterFacets | merge({
+				(facet.parent.title): facet.title
+			}) -%}
+		{%- endfor -%}
+	{%- endif -%}
+{%- endif -%}
+
+{# Inherit product facets #}
+{%- if product[facetField] is defined and product[facetField] | length -%}
+	{%- for facet in product[facetField].level(2) -%}
+		{%- set filterFacets = filterFacets | merge({
+			(facet.parent.title): facet.title
+		}) -%}
+	{%- endfor -%}
+{%- endif -%}
+
+{%- set displayFacets = filterFacets -%}
+
+{# Add syringe options, if applicable #}
+{%- if product.syringesOptions | length -%}
+	{# If there are existing keys for a facet that will be overwritten in an option, clear it out so we can append #}
+	{%- for option in product.syringesOptions -%}
+		{%- for facet in option.facets.level(2) if filterFacets[facet.parent.title] is defined -%}
+			{%- set filterFacets = filterFacets | merge({
+				(facet.parent.title): []
+			}) -%}
+		{%- endfor -%}
+	{%- endfor -%}
+
+	{%- for option in product.syringesOptions -%}
+		{%- for facet in option.facets.level(2) -%}
+			{%- set values = [] -%}
+
+			{%- if filterFacets[facet.parent.title] is defined -%}
+				{%- set values = filterFacets[facet.parent.title] -%}
+			{%- endif -%}
+
+			{%- if facet.title not in values -%}
+				{%- set values = values | merge([facet.title]) -%}
+			{%- endif -%}
+
+			{%- set filterFacets = filterFacets | merge({
+				(facet.parent.title): values
+			}) -%}
+		{%- endfor -%}
+	{%- endfor -%}
+{%- endif -%}
+
+{%- set site = (product.type.handle in ['disposableTips', 'otherRobotics', 'storagePlatforms', 'rackware', 'otherStorage']) ? 'automation' : 'laboratory' -%}
+
+{
+	"objectID": {{ product.id }},
+	"title": "{{ product.title }}",
+	{# TODO display title? #}
+
+	{# TODO correctly add site handle/ID and correct product URI with correct locale #}
+	"site": "{{ site }}",
+	"uri": "/{{ site }}/{{ product.uri }}",
+
+	{% if productGroup %}"group": "{{ productGroup.title }}",{% endif %}
+	"product_type": "{{ product.type.handle }}",
+	"product_category": [
+		{% for category in productCategories %}
+			"{{ category.title }}"{% if not loop.last %},{% endif %}
+		{% endfor %}
+	],
+	{% set hierarchicalCategories = [] %}
+	{% for category in productCategories %}
+		{% set hierarchicalCategories = hierarchicalCategories | merge([category]) %}
+		{% for ancestor in category.ancestors %}
+			{% set hierarchicalCategories = hierarchicalCategories | merge([ancestor]) %}
+		{% endfor %}
+	{% endfor %}
+	"hierarchical_product_category": {
+		{% for level, categories in hierarchicalCategories | group('level') %}
+			"lvl{{ level - 1 }}": [
+				{% for category in categories %}
+					"{% for ancestor in category.ancestors %}{{ ancestor.title }} > {% endfor %}{{ category.title }}"{% if not loop.last %},{% endif %}
+				{% endfor %}
+			]{% if not loop.last %},{% endif %}
+		{% endfor %}
+	},
+	"display_sku": "{{ product.defaultSku }}",
+	"filter_sku": {{ product.defaultSku | replace('-', '.') | replace('/[^0-9.]+/', '') | trim('.') | trim('0', 'left') | default(0) }},
+	{% for label, values in displayFacets %}
+		"display_{{ label }}": [
+			{% if values is iterable %}
+				{% for value in values %}
+					"{{ value }}"{% if not loop.last %},{% endif %}
+				{% endfor %}
+			{% else %}
+				"{{ values }}"
+			{% endif %}
+		],
+	{% endfor %}
+	{% for label, values in filterFacets %}
+		"filter_{{ label }}": [
+			{% if values is iterable %}
+				{% for value in values %}
+					"{{ value | replace('-', '&dash;') | raw }}"{% if not loop.last %},{% endif %}
+				{% endfor %}
+			{% else %}
+				"{{ values | replace('-', '&dash;') | raw }}"
+			{% endif %}
+		],
+	{% endfor %}
+
+	"date_created": {{ product.postDate.getTimestamp() }},
+	"date_updated": {{ product.dateUpdated.getTimestamp() }}
+
+	{# Product specific fields #}
+	{% if product.syringeNeedleSoldSeparately is defined %}
+		, "needle_sold_separately": {{ product.syringeNeedleSoldSeparately ? 'true' : 'false' }}
+	{% endif %}
+
+	{% if product.storagePlatformsCapacities is defined and product.storagePlatformsCapacities | length %}
+		, "hierarchical_storage_capabilities": {
+			{% for level, categories in product.storagePlatformsCapacities | group('level') %}
+				"lvl{{ level - 1 }}": [
+					{% for category in categories %}
+						"{% for ancestor in category.ancestors %}{{ ancestor.title }} > {% endfor %}{{ category.title }}"{% if not loop.last %},{% endif %}
+					{% endfor %}
+				]{% if not loop.last %},{% endif %}
+			{% endfor %}
+		}
+	{% endif %}
+
+}

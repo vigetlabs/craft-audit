@@ -37,10 +37,12 @@ class AuditAsset extends AssetBundle
 
         $this->js = [
             'js/Audit.js',
+            'js/Renderjson.js',
         ];
 
         $this->css = [
             'css/Audit.css',
+            'css/Renderjson.css',
         ];
 
         parent::init();

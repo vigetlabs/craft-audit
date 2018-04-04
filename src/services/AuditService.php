@@ -138,34 +138,32 @@ class AuditService extends Component
     public function onSaveElement(ElementInterface $element, $isNew = false)
     {
         try {
-            /** @var Element $element */
-            $model              = $this->_getStandardModel();
-            $model->event       = $isNew ? AuditModel::EVENT_CREATED_ELEMENT : AuditModel::EVENT_SAVED_ELEMENT;
-            $model->elementId   = $element->getId();
-            $model->elementType = get_class($element);
-            $snapshot           = [
-                'elementId'   => $element->getId(),
-                'elementType' => get_class($element),
-            ];
+            if (get_class($element) == 'craft\commerce\elements\Product') {
+                if ($this->recentlyAudited($element)) {
+                    return false;
+                }
 
-            if ($element->hasTitles()) {
-                $model->title      = $element->title;
-                $snapshot['title'] = $element->title;
+                $model              = $this->_getStandardModel();
+                $model->event       = $isNew ? AuditModel::EVENT_CREATED_ELEMENT : AuditModel::EVENT_SAVED_ELEMENT;
+                $model->elementId   = $element->getId();
+                $model->elementType = get_class($element);
+
+                $model->title = $element->title;
+
+                $model->snapshot = Craft::$app->view->renderTemplate('audit/product', [
+                    'product' => $element
+                ]);
+
+                $parentId = $this->getParentId($model->elementType);
+
+                if (!empty($parentId)) {
+                    $model->parentId = $parentId;
+                }
+
+                return $this->_saveRecord($model);
+            } else {
+                return false;
             }
-
-            if ($element->hasContent()) {
-                $snapshot['content'] = $element->getSerializedFieldValues();
-            }
-
-            $model->snapshot = $this->afterSnapshot($model, array_merge($model->snapshot, $snapshot));
-
-            $parentId = $this->getParentId($model->elementType);
-
-            if (!empty($parentId)) {
-                $model->parentId = $parentId;
-            }
-
-            return $this->_saveRecord($model);
         } catch (\Exception $e) {
             Craft::error(
                 Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
@@ -184,94 +182,30 @@ class AuditService extends Component
     public function onDeleteElement(ElementInterface $element)
     {
         try {
-            /** @var Element $element */
-            $model              = $this->_getStandardModel();
-            $model->event       = AuditModel::EVENT_DELETED_ELEMENT;
-            $model->elementType = get_class($element);
-            $snapshot           = [
-                'elementId'   => $element->getId(),
-                'elementType' => get_class($element),
-            ];
+            if (get_class($element) == 'craft\commerce\elements\Product') {
+                if ($this->recentlyAudited($element)) {
+                    return false;
+                }
 
-            if ($element->hasTitles()) {
-                $model->title      = $element->title;
-                $snapshot['title'] = $element->title;
+                $model              = $this->_getStandardModel();
+                $model->event       = AuditModel::EVENT_DELETED_ELEMENT;
+                $model->elementType = get_class($element);
+                $snapshot           = [
+                    'elementId'   => $element->getId(),
+                    'elementType' => get_class($element),
+                ];
+
+                if ($element->hasTitles()) {
+                    $model->title      = $element->title;
+                    $snapshot['title'] = $element->title;
+                }
+
+                $model->snapshot = $this->afterSnapshot($model, array_merge($model->snapshot, $snapshot));
+
+                return $this->_saveRecord($model);
+            } else {
+                return false;
             }
-
-            $model->snapshot = $this->afterSnapshot($model, array_merge($model->snapshot, $snapshot));
-
-            return $this->_saveRecord($model);
-        } catch (\Exception $e) {
-            Craft::error(
-                Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
-                __METHOD__
-            );
-
-            return false;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function onLogin()
-    {
-        try {
-            $model        = $this->_getStandardModel();
-            $model->event = AuditModel::USER_LOGGED_IN;
-
-            return $this->_saveRecord($model);
-        } catch (\Exception $e) {
-            Craft::error(
-                Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
-                __METHOD__
-            );
-
-            return false;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function onBeforeLogout()
-    {
-        try {
-            $model        = $this->_getStandardModel();
-            $model->event = AuditModel::USER_LOGGED_OUT;
-
-            return $this->_saveRecord($model);
-        } catch (\Exception $e) {
-            Craft::error(
-                Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
-                __METHOD__
-            );
-
-            return false;
-        }
-    }
-
-    /**
-     * @param string          $event
-     * @param PluginInterface $plugin
-     *
-     * @return bool
-     */
-    public function onPluginEvent(string $event, PluginInterface $plugin): bool
-    {
-        /** @var Plugin $plugin */
-        try {
-            $model           = $this->_getStandardModel();
-            $model->event    = $event;
-            $model->title    = $plugin->name;
-            $snapshot        = [
-                'title'   => $plugin->name,
-                'handle'  => $plugin->handle,
-                'version' => $plugin->version,
-            ];
-            $model->snapshot = $snapshot;
-
-            return $this->_saveRecord($model);
         } catch (\Exception $e) {
             Craft::error(
                 Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
@@ -380,32 +314,6 @@ class AuditService extends Component
         }
     }
 
-    public function outputObjectAsTable($input, $end = true)
-    {
-        $output = '<table class="audit-snapshot-table">';
-
-        foreach ($input as $key => $value) {
-            if (empty($value)) {
-                continue;
-            }
-
-            if (is_array($value)) {
-                $sub    = $this->outputObjectAsTable($value, false);
-                $output .= "<tr><td><strong>$key</strong>:</td><td>$sub</td></tr>";
-            }
-            else {
-                $output .= "<tr><td><strong>$key</strong></td><td>$value</td></tr>";
-            }
-        }
-        $output .= "</table>";
-
-        if ($end) {
-            $output = Template::raw($output);
-        }
-
-        return $output;
-    }
-
     /**
      * @return int|string
      */
@@ -422,31 +330,6 @@ class AuditService extends Component
         return $count;
     }
 
-    public function onBeforeResave(ResaveElements $job)
-    {
-        try {
-            $model              = $this->_getStandardModel();
-            $model->event       = AuditModel::EVENT_RESAVED_ELEMENTS;
-            $model->elementType = $job->elementType;
-            $model->appendSnapshot('resaveCriteria', $job->criteria);
-
-            $this->_saveRecord($model);
-
-            if ($model->id) {
-                $parentIdKey = $this->getParentIdKey($job->elementType);
-
-                Craft::$app->getCache()->set($parentIdKey, $model->id);
-            }
-        } catch (\Exception $e) {
-            Craft::error(
-                Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
-                __METHOD__
-            );
-        }
-
-        return true;
-    }
-
     /**
      * @param string $elementType
      *
@@ -460,95 +343,23 @@ class AuditService extends Component
         return $parentId;
     }
 
-    /**
-     * @param ResaveElements $job
-     *
-     * @return mixed
-     */
-    public function onResaveEnd(ResaveElements $job)
-    {
-        try {
-            $cache     = Craft::$app->getCache();
-            $parentKey = $this->getParentIdKey($job->elementType);
-            $parentId  = $cache->get($parentKey);
-
-            if ($parentId) {
-                $parentEvent   = $this->getEventById($parentId);
-                $subeventCount = $this->getEventCountByParentId($parentId);
-
-                if ($parentEvent) {
-                    $parentEvent->title = $subeventCount . ' elements was resaved';
-
-                    $this->_saveRecord($parentEvent);
-                }
-
-                $cache->delete($parentKey);
-            }
-        } catch (\Exception $e) {
-            Craft::error('Failed to remove resave id: ' . $e->getMessage(), __METHOD__);
-        }
-
-        return true;
-    }
-
     public function getParentIdKey($elementType = '')
     {
         return AuditModel::FLASH_RESAVE_ID . ':' . $elementType;
     }
 
-    public function onSaveRoute(RouteEvent $event)
-    {
-        $this->catchSaveError(function() use ($event) {
-            $uriDisplay      = Route::getUriDisplayHtml($event->uriParts);
-            $isNew           = $event->routeId === null;
-            $model           = $this->_getStandardModel();
-            $model->event    = $isNew ? AuditModel::EVENT_CREATED_ROUTE : AuditModel::EVENT_SAVED_ROUTE;
-            $model->title    = $uriDisplay . ' -> ' . $event->template;
-            $snapshot        = [
-                'uriParts' => $event->uriParts,
-                'routeId'  => $event->routeId,
-                'template' => $event->template,
-            ];
-            $model->snapshot = $this->afterSnapshot($model, array_merge($model->snapshot, $snapshot));
+    private function recentlyAudited($element) {
+        $existing = AuditRecord::findAll(['elementId' => $element->id]);
+        $now      = time();
 
-            return $this->_saveRecord($model);
-        });
-    }
-
-    public function onDeleteRoute(RouteEvent $event)
-    {
-        $this->catchSaveError(function() use ($event) {
-            $uriDisplay      = Route::getUriDisplayHtml($event->uriParts);
-            $model           = $this->_getStandardModel();
-            $model->event    = AuditModel::EVENT_DELETED_ROUTE;
-            $model->title    = $uriDisplay . ' -> ' . $event->template;
-            $snapshot        = [
-                'uriParts' => $event->uriParts,
-                'routeId'  => $event->routeId,
-                'template' => $event->template,
-            ];
-            $model->snapshot = $this->afterSnapshot($model, array_merge($model->snapshot, $snapshot));
-
-            return $this->_saveRecord($model);
-        });
-    }
-
-    private function catchSaveError(callable $callable)
-    {
-        try {
-            return $callable();
-        } catch (\Exception $e) {
-            $this->logSaveError($e);
-
-            return false;
+        foreach ($existing as $record) {
+            $created = strtotime($record->dateCreated);
+            $diff = $now - $created;
+            if ($now - $created < 10) {
+                return true;
+            }
         }
-    }
 
-    private function logSaveError(\Exception $e)
-    {
-        Craft::error(
-            Craft::t('audit', 'Error when logging: {error}', ['error' => $e->getMessage()]),
-            __METHOD__
-        );
+        return false;
     }
 }

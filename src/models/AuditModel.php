@@ -320,9 +320,9 @@ class AuditModel extends Model
     /**
      * @return string|\Twig_Markup
      */
-    public function getSnapshotTable()
+    public function getSnapshotJson()
     {
-        return Audit::$plugin->auditService->outputObjectAsTable($this->snapshot);
+        return $this->snapshot;
     }
 
     /**
